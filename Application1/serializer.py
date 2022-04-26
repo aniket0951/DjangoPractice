@@ -1,6 +1,6 @@
 from pyexpat import model
 from rest_framework import serializers
-from .models import User, Places
+from .models import User, Places, WhiteListedToken
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -29,3 +29,8 @@ class PlacesSerializer(serializers.ModelSerializer):
         if instance.user:
             response['User'] = UserSerializer(instance.user).data
         return response    
+
+class WhiteListedTokenSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = WhiteListedToken
+        fields = '__all__'

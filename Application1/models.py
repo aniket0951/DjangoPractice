@@ -49,4 +49,12 @@ class Places(MyBaseModel):
                                      blank=False, null=False)           
 
     user = models.ForeignKey(User, on_delete=models.PROTECT,
-                             blank=False, null=False)                                                                                     
+                             blank=False, null=False)   
+
+class WhiteListedToken(models.Model):
+    token = models.CharField(max_length=500)
+    user = models.ForeignKey(User, related_name="token_user", on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        unique_together = ("token", "user")
