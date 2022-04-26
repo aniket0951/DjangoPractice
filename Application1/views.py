@@ -13,6 +13,7 @@ from django.conf import settings
 from utils.custom_jwt_authentication import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from utils.custome_permissions import IsEndUser
+from utils.utils import user_object
 
 # Create your views here.
 class UserViewSetAPIView(custom_viewsets.ModelViewset):
@@ -72,15 +73,12 @@ class UserViewSetAPIView(custom_viewsets.ModelViewset):
 
     @action(detail=False, methods=['GET']) 
     def user_data(self, request):
-        user_id = self.request.data.get('user_id')
-
-        if not user_id:
-            raise ValidationError("Provide a params !")
-
-        user = self.get_queryset().filter(id=user_id).first()
+        user = user_object(request)
 
         if not user:
             raise ValidationError("User not found !")
+
+            
 
         serializer = self.get_serializer(user) 
         self.data.update({"data": serializer.data,
@@ -89,10 +87,6 @@ class UserViewSetAPIView(custom_viewsets.ModelViewset):
         return Response(self.data, status=status.HTTP_200_OK)                         
 
 
-
-class UserModelViewset(ModelViewSet):
-    queryset = User.objects.all()
-    serializer_class = UserSerializer
 
 class PlacesViewSetAPIView(custom_viewsets.ModelViewset):
     model = Places
@@ -104,6 +98,7 @@ class PlacesViewSetAPIView(custom_viewsets.ModelViewset):
     retrieve_success_message = 'Places Information returned successfully!'
     update_success_message = 'Places Information updated successfully!'
 
+
     @action(detail=False, methods=['GET'])
     def get_user_places(self,request):
 
@@ -113,7 +108,8 @@ class PlacesViewSetAPIView(custom_viewsets.ModelViewset):
         
         if not places:
             raise ValidationError("Places not fond !")
-        
-        # serializer = PlacesSerializer(places)
+
+        places.user.username = "Aniket Suryawanhsi"
+        places.save()
         serializer = self.get_serializer(places)
         return Response(serializer.data,status=status.HTTP_200_OK)    
