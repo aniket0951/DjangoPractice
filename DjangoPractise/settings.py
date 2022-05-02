@@ -39,6 +39,7 @@ ALLOWED_HOSTS = []
 # Application definition
 
 INBUILD_APPS = [
+    'channels',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
@@ -58,7 +59,8 @@ MIDDLEWARE = [
 ]
 
 CUSTOME_APPS = [
-    'Application1'
+    'Application1',
+    'WEBSockets',
 ]
 
 THIRT_PARTY_APPS = [
@@ -72,7 +74,7 @@ ROOT_URLCONF = 'DjangoPractise.urls'
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',
-        'DIRS': [],
+        'DIRS': ['templates'],
         'APP_DIRS': True,
         'OPTIONS': {
             'context_processors': [
@@ -85,7 +87,8 @@ TEMPLATES = [
     },
 ]
 
-WSGI_APPLICATION = 'DjangoPractise.wsgi.application'
+# WSGI_APPLICATION = 'DjangoPractise.wsgi.application'
+ASGI_APPLICATION = 'DjangoPractise.asgi.application'
 
 
 # Database

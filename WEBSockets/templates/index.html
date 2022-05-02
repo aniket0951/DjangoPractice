@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+
+<body>
+    <h1 id="text">This is page for test</h1>
+    <button id="clickbtn" class="btn btn-primary">click me</button>
+    <script>
+        var ws = new WebSocket('ws://' + window.location.host + '/ws/wsc/')
+        ws.onopen = function () {
+            console.log('Websocket Connection Open .....')
+
+        }
+
+        ws.onmessage = function (e) {
+            const data = JSON.parse(e.data);
+            user_data = data.user_data
+            
+            var text = document.getElementById('text')
+
+            for(var i in user_data){
+                console.log(user_data[i]['name'])
+                text.innerHTML += user_data[i]['name'] + "\n"
+            }
+        }
+
+
+        ws.onclose = function () {
+            console.log('Websocket Connection Close .....')
+        }
+
+        document.getElementById('clickbtn').onclick = function (event) {
+            const id = 14
+            const name = "aniket"
+
+            ws.send(JSON.stringify({
+                'id': id,
+                'name': name
+            }))
+
+            console.log("button clicke")
+        }
+    </script>
+</body>
+
+</html>
