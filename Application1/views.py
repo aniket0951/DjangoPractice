@@ -1,7 +1,7 @@
 from django.shortcuts import render
 from .models import User, Places
 from .serializer import UserSerializer, PlacesSerializer
-from rest_framework.decorators import action
+from rest_framework.decorators import action, api_view
 from utils import custom_viewsets
 from rest_framework.response import Response
 from rest_framework import status
@@ -14,7 +14,8 @@ from utils.custom_jwt_authentication import *
 from rest_framework.permissions import AllowAny, IsAuthenticated
 from utils.custome_permissions import IsEndUser
 from utils.utils import user_object
-
+import http.client
+import json
 # Create your views here.
 
 
@@ -22,6 +23,7 @@ class UserViewSetAPIView(custom_viewsets.ModelViewset):
     model = User
     queryset = User.objects.all()
     serializer_class = UserSerializer
+    permission_classes = [AllowAny]
 
     create_success_message = 'User registration completed successfully!'
     list_success_message = 'User list returned successfully!'
@@ -33,28 +35,11 @@ class UserViewSetAPIView(custom_viewsets.ModelViewset):
         "message": None,
     }
 
-    def get_permissions(self):
-        if self.action in ['create', 'user_login']:
-            permission_classes = [AllowAny]
-            return [permission() for permission in permission_classes]
-
-        if self.action in ['user_data']:
-            permission_classes = [IsEndUser]
-            return [permission() for permission in permission_classes]
-
-        if self.action == 'retrieve':
-            permission_classes = [IsEndUser]
-            return [permission() for permission in permission_classes]
-
-        if self.action == 'list':
-            permission_classes = [IsEndUser]
-            return [permission() for permission in permission_classes]
-        return super().get_permissions()
 
     @action(detail=False, methods=['POST'])
     def user_login(self, request):
 
-        user = self.get_queryset().filter(id=1).first()
+        user = self.get_queryset().filter(id=14).first()
         serializer = self.get_serializer(user)
         payload = jwt_payload_handler(user)
         payload['username'] = user.name
@@ -76,7 +61,8 @@ class UserViewSetAPIView(custom_viewsets.ModelViewset):
 
     @action(detail=False, methods=['GET'])
     def user_data(self, request):
-        user = user_object(request)
+        # # user = user_object(request)
+        user = User.objects.filter(name="aniket1").first()
 
         if not user:
             raise ValidationError("User not found !")
@@ -85,8 +71,20 @@ class UserViewSetAPIView(custom_viewsets.ModelViewset):
         self.data.update({"data": serializer.data,
                           "message": self.retrieve_success_message})
 
-        return Response(self.data, status=status.HTTP_200_OK)
+        data = dict()
+        data['test1'] = "Aniket suryawanhsi from test 1"
+        data['test'] =  "Aniket suryawanhsi from test"    
 
+        mobile = str(user.mobile)
+        send_message(mobile, "this is from testt mantra labs")            
+
+        return Response(self.data, status=status.HTTP_200_OK)
+@api_view(['GET'])    
+def user_my_data(request):
+    # data = User.objects.all()
+    # serializer = UserSerializer(data, many=True)
+
+    return Response("aniket", status=status.HTTP_200_OK)
 
 class PlacesViewSetAPIView(custom_viewsets.ModelViewset):
     model = Places
@@ -133,8 +131,20 @@ class PlacesViewSetAPIView(custom_viewsets.ModelViewset):
 
     @action(detail=False, methods=['GET'])
     def whats_app_user(self, request):
-        import http.client
-        import json
+        mobile_number = self.request.data.get('mobile_number')
+        message = self.request.data.get('message')
+
+        data = send_message(mobile_number, message)
+
+        # data['HTTPStatusCode'] == 200
+        return Response(data, status=status.HTTP_200_OK)
+
+def send_message(mobile_number, message):
+        template_name = "web_guest_vcurl"
+        sender = "916366442244"
+        language = "en"
+
+         
 
         authorization = 'App c3c6c881ee9ecc553da82d7b4ebbaedc-edaeb328-541a-4548-ac7b-f6f7c9d34e48'
         baseurl = "29y9z.api.infobip.com"
@@ -142,19 +152,22 @@ class PlacesViewSetAPIView(custom_viewsets.ModelViewset):
         payload = json.dumps({
             "messages": [
                 {
-                    "from": "916366442244",
-                    "to": "917038206592",
+                    "from": f"{sender}",
+                    "to": f"{mobile_number}",
                     "messageId": "a28dd97c-1ffb-4fcf-99f1-0b557ed381da",
                     "content": {
-                        "templateName": "tollfreenumber",
+                        "templateName": f"{template_name}",
                         "templateData": {
                             "body": {
                                 "placeholders": [
-                                    "test test"
+                                    f"{message}",
+                                    "test",
+                                    "test",
+                                    "test"
                                 ]
                             }
                         },
-                        "language": "en"
+                        "language": f"{language}"
                     },
                     "callbackData": "Callback data",
                     "notifyUrl": "https://www.example.com/whatsapp"
@@ -168,6 +181,11 @@ class PlacesViewSetAPIView(custom_viewsets.ModelViewset):
         }
         conn.request("POST", "/whatsapp/1/message/template", payload, headers)
         res = conn.getresponse()
-        data = res.read()
+        data = res
+        temp = data 
+        data = json.load(temp)
 
-        return Response(data.decode("utf-8"), status=status.HTTP_200_OK)
+        # data['HTTPStatusCode'] == 200
+        return data
+        return Response(data, status=status.HTTP_200_OK)
+

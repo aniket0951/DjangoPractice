@@ -6,6 +6,7 @@ from django.core.validators import (
                                 MaxValueValidator,
                                 MinValueValidator
                             )
+from phonenumber_field.modelfields import PhoneNumberField
 # Create your models here.
 
 class MyBaseModel(models.Model):
@@ -26,7 +27,9 @@ class User(AbstractUser):
     email = models.CharField(max_length=255, unique=False)
 
     password = models.CharField(max_length=56,
-                                blank=False, null=False)                                             
+                                blank=False, null=False) 
+
+    mobile = PhoneNumberField(null=True, blank=True)                                                                     
 
 class UserAddress(MyBaseModel):
     area = models.CharField(max_length=255,

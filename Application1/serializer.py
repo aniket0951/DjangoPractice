@@ -5,7 +5,7 @@ from .models import User, Places, WhiteListedToken
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model= User 
-        fields = ['id', 'name', 'email', 'password', 'username']
+        fields = ['id', 'name', 'email', 'password', 'username', 'mobile']
         extra_kwargs = {
             'password': {"write_only": True}
         }
